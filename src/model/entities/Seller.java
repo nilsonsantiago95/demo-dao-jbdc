@@ -103,7 +103,7 @@ public class Seller implements Serializable {
 		sb.append("Email: " + email + "\n");
 		sb.append("Birth date: " + birthDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + "\n");
 		sb.append("Base salary: " + String.format("%.2f", baseSalary) + "\n");
-		sb.append("Department:\n" + department);
+		sb.append("Department:\n" + department + "\n");
 		return sb.toString();
 	}
 
