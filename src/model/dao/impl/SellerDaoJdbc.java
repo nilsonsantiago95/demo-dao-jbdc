@@ -26,36 +26,34 @@ public class SellerDaoJdbc implements SellerDao {
 
 	@Override
 	public void insert(Seller seller) {
-		
+
 		PreparedStatement ps = null;
-		
+
 		try {
-			
-			ps = conn.prepareStatement("INSERT INTO seller\n"
-					+ "(Name, Email, BirthDate, BaseSalary, DepartmentId) "
-					+ "VALUES "
-					+ "(?, ?, ?, ?, ?)", PreparedStatement.RETURN_GENERATED_KEYS);
-			
+
+			ps = conn.prepareStatement("INSERT INTO seller\n" + "(Name, Email, BirthDate, BaseSalary, DepartmentId) "
+					+ "VALUES " + "(?, ?, ?, ?, ?)", PreparedStatement.RETURN_GENERATED_KEYS);
+
 			ps.setString(1, seller.getName());
 			ps.setString(2, seller.getEmail());
 			ps.setDate(3, Date.valueOf(seller.getBirthDate()));
 			ps.setDouble(4, seller.getBaseSalary());
 			ps.setInt(5, seller.getDepartment().getId());
-			
+
 			int rowsAffected = ps.executeUpdate();
-			
-			if(rowsAffected <= 0) {
+
+			if (rowsAffected <= 0) {
 				throw new DbException("Unexpect error: No rows affected");
 			}
-			
+
 			ResultSet rs = ps.getGeneratedKeys();
-			
-			if(rs.next()) {
+
+			if (rs.next()) {
 				int id = rs.getInt(1);
 				seller.setId(id);
 			}
-			
-		} catch(SQLException e) {
+
+		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 		}
 
@@ -63,7 +61,26 @@ public class SellerDaoJdbc implements SellerDao {
 
 	@Override
 	public void update(Seller seller) {
-		// TODO Auto-generated method stub
+
+		PreparedStatement ps = null;
+
+		try {
+
+			ps = conn.prepareStatement("UPDATE seller SET Name = ?, Email = ?, BirthDate = ?,"
+					+ " BaseSalary = ?, DepartmentId = ? WHERE Id = ?");
+
+			ps.setString(1, seller.getName());
+			ps.setString(2, seller.getEmail());
+			ps.setDate(3, Date.valueOf(seller.getBirthDate()));
+			ps.setDouble(4, seller.getBaseSalary());
+			ps.setInt(5, seller.getDepartment().getId());
+			ps.setInt(6, seller.getId());
+
+			ps.executeUpdate();
+
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		}
 
 	}
 
@@ -132,37 +149,36 @@ public class SellerDaoJdbc implements SellerDao {
 
 	@Override
 	public List<Seller> findAll() {
-		
+
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 
 		try {
 
-			ps = conn.prepareStatement("SELECT seller.*,department.Name as DepName\n"
-					+ "FROM seller INNER JOIN department\n"
-					+ "ON seller.DepartmentId = department.Id\n"
-					+ "ORDER BY Name");
-				
+			ps = conn.prepareStatement(
+					"SELECT seller.*,department.Name as DepName\n" + "FROM seller INNER JOIN department\n"
+							+ "ON seller.DepartmentId = department.Id\n" + "ORDER BY Name");
+
 			rs = ps.executeQuery();
-			
+
 			List<Seller> listSellers = new ArrayList<>();
 			Map<Integer, Department> mapDepartments = new HashMap<>();
 
 			while (rs.next()) {
 
 				Department department = mapDepartments.get(rs.getInt("DepartmentId"));
-				
-				if(department == null) {
+
+				if (department == null) {
 					department = instantiateDepartment(rs);
 					mapDepartments.put(rs.getInt("DepartmentId"), department);
 				}
-				
+
 				Seller seller = instantiateSeller(rs, department);
-				
+
 				listSellers.add(seller);
 
 			}
-			
+
 			return listSellers;
 
 		} catch (SQLException e) {
@@ -183,22 +199,21 @@ public class SellerDaoJdbc implements SellerDao {
 
 		try {
 
-			ps = conn.prepareStatement("SELECT seller.*,department.Name as DepName "
-					+ "FROM seller INNER JOIN department "
-					+ "ON seller.DepartmentId = department.Id "
-					+ "WHERE DepartmentId = ?" + " ORDER BY Name");
-			
-			ps.setInt(1, department.getId());		
+			ps = conn.prepareStatement(
+					"SELECT seller.*,department.Name as DepName " + "FROM seller INNER JOIN department "
+							+ "ON seller.DepartmentId = department.Id " + "WHERE DepartmentId = ?" + " ORDER BY Name");
+
+			ps.setInt(1, department.getId());
 			rs = ps.executeQuery();
-			
+
 			List<Seller> listSellers = new ArrayList<>();
 			Map<Integer, Department> mapDepartments = new HashMap<>();
 
 			while (rs.next()) {
 
 				Department dep = mapDepartments.get(rs.getInt("DepartmentId"));
-				
-				if(dep == null) {
+
+				if (dep == null) {
 					dep = instantiateDepartment(rs);
 					mapDepartments.put(rs.getInt("DepartmentId"), dep);
 				}
@@ -208,7 +223,7 @@ public class SellerDaoJdbc implements SellerDao {
 				listSellers.add(seller);
 
 			}
-			
+
 			return listSellers;
 
 		} catch (SQLException e) {
