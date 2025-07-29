@@ -16,6 +16,9 @@ public class Program {
 		System.out.println("=== Test 2: Seller findByDepartment ===");
 		Department department = new Department(2, null);
 		sellerDao.findByDepartment(department).forEach(System.out::println);
+		
+		System.out.println("=== Test 3: Seller findAll ===");
+		sellerDao.findAll().forEach(System.out::println);
 
 	}
 
